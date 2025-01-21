@@ -22,6 +22,7 @@ dependencies {
     testImplementation(kotlin("test"))
 
     implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.netty)
 }
 
 tasks.test {
