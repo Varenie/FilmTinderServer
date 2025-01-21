@@ -1,9 +1,18 @@
 plugins {
-    kotlin("jvm") version "2.0.20"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlin.plugin.serialization)
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "ru.varenie"
+version = "0.1"
+
+application {
+    mainClass.set("io.ktor.server.netty.EngineMain")
+
+    val isDevelopment: Boolean = project.ext.has("development")
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
 
 repositories {
     mavenCentral()
@@ -11,6 +20,8 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+
+    implementation(libs.ktor.server.core)
 }
 
 tasks.test {
