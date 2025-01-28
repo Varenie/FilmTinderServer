@@ -16,6 +16,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.slf4j.event.Level
+import java.io.InputStream
 import java.util.*
 
 
@@ -46,10 +47,12 @@ fun Application.configureAuth() {
             val secret = "my_very_secret"
             val issuer = "my_very_issuer"
 
+            println("install $realm, $secret, $issuer")
             verifier(makeJwtVerifier(issuer, secret))
 
             validate { credential ->
                 if (credential.payload.getClaim("username").asString() != null) {
+                    println("validate: ${credential.payload.getClaim("username").asString()}")
                     JWTPrincipal(credential.payload)
                 } else null
             }
@@ -70,10 +73,15 @@ fun Application.configureRouting() {
         }
 
         post("/login") {
-            val userName = call.receiveParameters()["username"] ?: return@post call.respondText("Missing username")
-
-
-            val token = generateToken(userName)
+//            val userName = call.receiveParameters()["username"] ?: return@post call.respondText("Missing username")
+//
+//            println("username: $userName")
+//            val token = generateToken(userName)
+//            println("token: $token")
+//            call.respondText(token)
+            val inputStream: InputStream = call.receiveStream()
+            val rawBody = inputStream.bufferedReader().use { it.readText() }
+            val token = generateToken(rawBody)
             call.respondText(token)
         }
 
@@ -86,6 +94,10 @@ fun Application.configureRouting() {
         }
     }
 }
+
+data class User(
+    val username: String
+)
 
 // Создание токена
 fun generateToken(username: String): String {
